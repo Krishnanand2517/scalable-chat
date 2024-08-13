@@ -6,15 +6,12 @@ import { useSocket } from "../context/SocketProvider";
 import classes from "./page.module.css";
 
 export default function Page() {
-  const { sendMessage } = useSocket();
+  const { sendMessage, messages } = useSocket();
 
   const [message, setMessage] = useState("");
 
   return (
     <div>
-      <div>
-        <h2>All messages will appear here</h2>
-      </div>
       <div>
         <input
           placeholder="Message..."
@@ -27,6 +24,12 @@ export default function Page() {
         >
           Send
         </button>
+      </div>
+
+      <div>
+        {messages.map((item, index) => (
+          <li key={index}>{item}</li>
+        ))}
       </div>
     </div>
   );
