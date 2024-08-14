@@ -8,9 +8,14 @@
         "dev": "tsc-watch --onSuccess \"node dist/index.js\""
     },
     "devDependencies": {
-        "tsc-watch": "^6.2.0"
+        "@types/node": "^22.3.0",
+        "prisma": "^5.18.0",
+        "ts-node": "^10.9.2",
+        "tsc-watch": "^6.2.0",
+        "typescript": "^5.5.4"
     },
     "dependencies": {
+        "@prisma/client": "^5.18.0",
         "dotenv": "^16.4.5",
         "ioredis": "^5.4.1",
         "socket.io": "^4.7.5"
