@@ -1,6 +1,7 @@
 import { Kafka, Producer } from "kafkajs";
 import fs from "fs";
 import path from "path";
+import prismaClient from "./prisma";
 
 const kafka = new Kafka({
   brokers: [`${process.env.KAFKA_HOST}:${process.env.KAFKA_PORT}`],
@@ -35,6 +36,34 @@ export async function produceMessage(message: string) {
   });
 
   return true;
+}
+
+export async function startMessageConsumer() {
+  const consumer = kafka.consumer({ groupId: "default" });
+  await consumer.connect();
+  await consumer.subscribe({ topic: "MESSAGES", fromBeginning: true });
+
+  await consumer.run({
+    autoCommit: true,
+    eachMessage: async ({ message, pause }) => {
+      if (!message.value) return;
+      console.log("New message received from Kafka");
+
+      try {
+        await prismaClient.message.create({
+          data: {
+            text: JSON.parse(message.value?.toString()).message,
+          },
+        });
+      } catch (error) {
+        console.log("Something is wrong with Kafka broker");
+        pause();
+        setTimeout(() => {
+          consumer.resume([{ topic: "MESSAGES" }]);
+        }, 60 * 1000);
+      }
+    },
+  });
 }
 
 export default kafka;
